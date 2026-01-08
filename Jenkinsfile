@@ -5,26 +5,22 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                    echo "=== Building with Node running npm ==="
+                    echo "=== Starting Build ==="
                     
-                    # Use node to execute npm
-                    NODE="/usr/bin/node"
-                    NPM_SCRIPT="/usr/lib/node_modules/npm/bin/npm-cli.js"
-                    
-                    echo "Node version: $($NODE --version)"
-                    echo "npm script exists: $(ls $NPM_SCRIPT)"
+                    # Test npm access
+                    node /usr/bin/npm --version
                     
                     # Build Backend
                     echo "1. Building Backend..."
                     cd blog-backend
-                    $NODE $NPM_SCRIPT install
-                    $NODE $NPM_SCRIPT run build
+                    node /usr/bin/npm install
+                    node /usr/bin/npm run build
                     
                     # Build Frontend
                     echo "2. Building Frontend..."
                     cd ../blog-frontend
-                    $NODE $NPM_SCRIPT install
-                    $NODE $NPM_SCRIPT run build
+                    node /usr/bin/npm install
+                    node /usr/bin/npm run build
                     
                     echo "✅ Build Complete!"
                 '''
