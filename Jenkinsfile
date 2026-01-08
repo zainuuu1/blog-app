@@ -2,37 +2,24 @@ pipeline {
     agent any
     
     stages {
-        // Stage 1: Get Code
-        stage('Checkout') {
+        stage('Build') {
             steps {
-                git 'https://github.com/zainuuu1/blog-app'
+                // Build Backend
+                sh '''
+                    echo "Building Backend..."
+                    cd blog-backend
+                    npm install
+                    npm run build
+                '''
+                
+                // Build Frontend
+                sh '''
+                    echo "Building Frontend..."
+                    cd blog-frontend
+                    npm install
+                    npm run build
+                '''
             }
-        }
-        
-        // Stage 2: Build Backend
-        stage('Build Backend') {
-            steps {
-                dir('blog-backend') {
-                    sh 'npm install'
-                    sh 'npm run build'
-                }
-            }
-        }
-        
-        // Stage 3: Build Frontend
-        stage('Build Frontend') {
-            steps {
-                dir('blog-frontend') {
-                    sh 'npm install'
-                    sh 'npm run build'
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            echo 'Build process completed!'
         }
     }
 }
