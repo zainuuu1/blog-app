@@ -5,19 +5,20 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                    echo "=== Starting Build ==="
+                    echo "=== Building Application ==="
                     
-                    # Test npm access
-                    node /usr/bin/npm --version
-                    
-                    # Build Backend with --ignore-scripts to skip mongodb-memory-server download
-                    echo "1. Building Backend..."
+                    # Backend
                     cd blog-backend
                     node /usr/bin/npm install --ignore-scripts
+                    
+                    # Remove conflicting Jasmine types (since project uses Jest)
+                    echo "Removing @types/jasmine to fix TypeScript conflict..."
+                    node /usr/bin/npm uninstall @types/jasmine --save-dev
+                    
+                    # Build
                     node /usr/bin/npm run build
                     
-                    # Build Frontend
-                    echo "2. Building Frontend..."
+                    # Frontend
                     cd ../blog-frontend
                     node /usr/bin/npm install
                     node /usr/bin/npm run build
