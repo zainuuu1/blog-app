@@ -2,38 +2,31 @@ pipeline {
     agent any
     
     stages {
-        stage('Setup') {
-            steps {
-                sh '''
-                    # Install Node.js if not present
-                    if ! command -v npm &> /dev/null; then
-                        echo "Installing Node.js..."
-                        curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-                        sudo apt-get install -y nodejs
-                    fi
-                    
-                    # Verify
-                    /usr/bin/node --version
-                    /usr/bin/npm --version
-                '''
-            }
-        }
-        
         stage('Build') {
             steps {
                 sh '''
-                    # Use absolute paths
-                    /usr/bin/npm --version
+                    echo "=== Building with Node running npm ==="
                     
-                    # Backend
+                    # Use node to execute npm
+                    NODE="/usr/bin/node"
+                    NPM_SCRIPT="/usr/lib/node_modules/npm/bin/npm-cli.js"
+                    
+                    echo "Node version: $($NODE --version)"
+                    echo "npm script exists: $(ls $NPM_SCRIPT)"
+                    
+                    # Build Backend
+                    echo "1. Building Backend..."
                     cd blog-backend
-                    /usr/bin/npm install
-                    /usr/bin/npm run build
+                    $NODE $NPM_SCRIPT install
+                    $NODE $NPM_SCRIPT run build
                     
-                    # Frontend
+                    # Build Frontend
+                    echo "2. Building Frontend..."
                     cd ../blog-frontend
-                    /usr/bin/npm install
-                    /usr/bin/npm run build
+                    $NODE $NPM_SCRIPT install
+                    $NODE $NPM_SCRIPT run build
+                    
+                    echo "✅ Build Complete!"
                 '''
             }
         }
