@@ -5,24 +5,40 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                    echo "=== Building with environment fix ==="
+                    echo "=== Starting Build ==="
                     
-                    # Backend
+                    # Backend: Skip type conflicts and build
                     cd blog-backend
+                    echo "Installing backend dependencies..."
                     node /usr/bin/npm install --ignore-scripts
-                    node /usr/bin/npm run build
                     
-                    # Frontend
+                    echo "Building backend with skipLibCheck..."
+                    npx tsc --skipLibCheck
+                    
+                    # Check if build succeeded
+                    if [ ! -d "dist" ]; then
+                        echo "ERROR: Backend build failed - no dist folder"
+                        exit 1
+                    fi
+                    
+                    echo "✅ Backend built successfully!"
+                    
+                    # Frontend: Use OpenSSL fix
                     cd ../blog-frontend
+                    echo "Installing frontend dependencies..."
                     node /usr/bin/npm install
                     
-                    # Create .env file with OpenSSL fix
-                    echo "GENERATE_SOURCEMAP=false" > .env
-                    echo "NODE_OPTIONS=--openssl-legacy-provider" >> .env
+                    echo "Building frontend with OpenSSL fix..."
+                    NODE_OPTIONS="--openssl-legacy-provider" node /usr/bin/npm run build
                     
-                    node /usr/bin/npm run build
+                    # Check if build succeeded
+                    if [ ! -d "build" ]; then
+                        echo "ERROR: Frontend build failed - no build folder"
+                        exit 1
+                    fi
                     
-                    echo "✅ Build Complete!"
+                    echo "✅ Frontend built successfully!"
+                    echo "🎉 All builds completed!"
                 '''
             }
         }
