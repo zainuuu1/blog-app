@@ -7,13 +7,14 @@ pipeline {
                 sh '''
                     echo "=== Starting Build ==="
                     
-                    # Backend: Skip type conflicts and build
+                    # Backend
                     cd blog-backend
                     echo "Installing backend dependencies..."
                     node /usr/bin/npm install --ignore-scripts
                     
                     echo "Building backend with skipLibCheck..."
-                    npx tsc --skipLibCheck
+                    # Use tsc from node_modules/.bin
+                    ./node_modules/.bin/tsc --skipLibCheck
                     
                     # Check if build succeeded
                     if [ ! -d "dist" ]; then
@@ -23,7 +24,7 @@ pipeline {
                     
                     echo "✅ Backend built successfully!"
                     
-                    # Frontend: Use OpenSSL fix
+                    # Frontend
                     cd ../blog-frontend
                     echo "Installing frontend dependencies..."
                     node /usr/bin/npm install
